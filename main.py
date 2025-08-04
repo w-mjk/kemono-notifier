@@ -1,0 +1,77 @@
+import time
+import datetime
+import Profile
+import json
+import requests
+import base64
+from email.message import EmailMessage
+
+import base64
+from email.message import EmailMessage
+
+# import google.auth
+# from googleapiclient.discovery import build
+# from googleapiclient.errors import HttpError
+
+api_url = "https://kemono.su/api"
+favorites = "/v1/account/favorites"
+authentication = "eyJfcGVybWFuZW50Ijp0cnVlLCJhY2NvdW50X2lkIjoxNjUxNTI4fQ.Z8SbKA.pU-N1xx96sRvP4eYsSTHWW8DmNk"
+seconds_to_sleep = 5
+profile_list = []
+email = None
+
+while True:
+    #Extract API information
+    response = requests.get(api_url+favorites, params={"type":"artist"}, headers={"Cookie":"session="+authentication, "accept":"application/response_json"})
+    response_json = response.json()
+    extracted_profile_list = []
+
+    #First time execution only
+    if len(profile_list) == 0:
+        #Append each profile in the response_json file to the list
+        for profile in response_json:
+            profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
+    
+    for profile in response_json:
+        extracted_profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
+
+    #Upon change in the favorite list
+    if len(profile_list) < len(extracted_profile_list):
+        for i in range(len(extracted_profile_list)):
+            profile_exists = False
+            for j in range(len(profile_list)):
+                if extracted_profile_list[i].get_name() == profile_list[j].get_name():
+                    profile_exists = True
+            if (profile_exists == False):
+                profile_list.append(extracted_profile_list[i])
+
+    if len(profile_list) > len(extracted_profile_list):
+        for i in range(len(profile_list)):
+            profile_exists = False
+            for j in range(len(extracted_profile_list)):
+                if profile_list[i].get_name() == extracted_profile_list[j].get_name():
+                    profile_exists = True
+            if (profile_exists == False):
+                profile_list.remove(profile_list[i])
+
+    #Update data for each profile in the list
+    for i in range(len(profile_list)):
+        for j in range(len(extracted_profile_list)):
+            if profile_list[i].get_name() == extracted_profile_list[j].get_name():
+                if (profile_list[i].get_last_imported != extracted_profile_list[j].get_last_imported()):
+                    #Send email
+
+                    #Set new date imported
+                    profile_list[i].set_last_imported(extracted_profile_list[j].get_last_imported())
+
+    #Store in response_json
+    profile_dicts = []
+    for profile in profile_list:
+        print(profile.to_json())
+        profile_dicts.append(profile.to_json())
+        
+    with open("profile_list.json", "w") as f:
+        json.dump(profile_dicts, f, indent=4)
+
+    #Suspend activity for X seconds
+    time.sleep(seconds_to_sleep)
