@@ -70,6 +70,9 @@ while True:
                     #Set new date imported
                     profile_list[i].set_last_imported(extracted_profile_list[j].get_last_imported())
 
+    #Check if message sent regardless
+    send_message.send_message("Render!")
+
     #Store in response_json
     profile_dicts = []
     for profile in profile_list:
