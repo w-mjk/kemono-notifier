@@ -1,33 +1,37 @@
 import time
-import datetime
 import Profile
 import json
 import requests
-import base64
-from email.message import EmailMessage
-
-import base64
-from email.message import EmailMessage
+import send_message
+import os
 
 # import google.auth
 # from googleapiclient.discovery import build
 # from googleapiclient.errors import HttpError
 
-api_url = "https://kemono.su/api"
+api_url = "https://kemono.cr/api"
 favorites = "/v1/account/favorites"
-authentication = "eyJfcGVybWFuZW50Ijp0cnVlLCJhY2NvdW50X2lkIjoxNjUxNTI4fQ.Z8SbKA.pU-N1xx96sRvP4eYsSTHWW8DmNk"
+authentication = "eyJfcGVybWFuZW50Ijp0cnVlLCJhY2NvdW50X2lkIjoxNjUxNTI4fQ.aIWIKg.yWF4o8P_ZpfXzi6QbZTM9NIdLTk"
 seconds_to_sleep = 5
 profile_list = []
 email = None
+
+with open("profile_list.json", "r") as current_json_file:
+        if (os.path.getsize("profile_list.json") != 0):  
+            current_json = json.load(current_json_file)
+            for profile in current_json:
+                profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
 
 while True:
     #Extract API information
     response = requests.get(api_url+favorites, params={"type":"artist"}, headers={"Cookie":"session="+authentication, "accept":"application/response_json"})
     response_json = response.json()
     extracted_profile_list = []
-
+            
+  
     #First time execution only
     if len(profile_list) == 0:
+        print("Is not appending again and again!\n")
         #Append each profile in the response_json file to the list
         for profile in response_json:
             profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
@@ -58,16 +62,18 @@ while True:
     for i in range(len(profile_list)):
         for j in range(len(extracted_profile_list)):
             if profile_list[i].get_name() == extracted_profile_list[j].get_name():
-                if (profile_list[i].get_last_imported != extracted_profile_list[j].get_last_imported()):
+                if (profile_list[i].get_last_imported() != extracted_profile_list[j].get_last_imported()):
                     #Send email
-
+                    name = extracted_profile_list[j].get_name()
+                    send_message.send_message(name)
+                    
                     #Set new date imported
                     profile_list[i].set_last_imported(extracted_profile_list[j].get_last_imported())
 
     #Store in response_json
     profile_dicts = []
     for profile in profile_list:
-        print(profile.to_json())
+        #print(profile.to_json())
         profile_dicts.append(profile.to_json())
         
     with open("profile_list.json", "w") as f:
