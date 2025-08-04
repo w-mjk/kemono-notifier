@@ -1,5 +1,4 @@
 requests
-smtplib
 ssl
 email
 urllib3
