@@ -1,0 +1,10 @@
+requests
+smtplib
+ssl
+email
+urllib3
+certify
+time
+json
+requests
+os
