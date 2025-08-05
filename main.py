@@ -4,15 +4,12 @@ import json
 import requests
 import send_message
 import os
-
-# import google.auth
-# from googleapiclient.discovery import build
-# from googleapiclient.errors import HttpError
+from datetime import datetime
 
 api_url = "https://kemono.cr/api"
 favorites = "/v1/account/favorites"
 authentication = "eyJfcGVybWFuZW50Ijp0cnVlLCJhY2NvdW50X2lkIjoxNjUxNTI4fQ.aIWIKg.yWF4o8P_ZpfXzi6QbZTM9NIdLTk"
-seconds_to_sleep = 5
+seconds_to_sleep = 600
 profile_list = []
 email = None
 
@@ -23,6 +20,10 @@ with open("profile_list.json", "r") as current_json_file:
                 profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
 
 while True:
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Current time = ", current_time)
+
     #Extract API information
     response = requests.get(api_url+favorites, params={"type":"artist"}, headers={"Cookie":"session="+authentication, "accept":"application/response_json"})
     response_json = response.json()
@@ -69,6 +70,8 @@ while True:
                     
                     #Set new date imported
                     profile_list[i].set_last_imported(extracted_profile_list[j].get_last_imported())
+
+    #send_message.send_message("AWS")
 
     #Store in response_json
     profile_dicts = []
