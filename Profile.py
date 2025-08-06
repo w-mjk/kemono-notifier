@@ -1,11 +1,11 @@
 class Profile:
     def __init__(self):
         self.name = None
-        self.last_imported = None
+        self.updated = None
         
-    def __init__(self, name, last_imported):
+    def __init__(self, name, updated):
         self.name = name
-        self.last_imported = last_imported
+        self.updated = updated
 
     def set_name(self, name):
         self.name = name
@@ -13,15 +13,15 @@ class Profile:
     def get_name(self):
         return self.name
 
-    def set_last_imported(self, last_imported):
-        self.last_imported = last_imported
+    def set_updated(self, updated):
+        self.updated = updated
 
-    def get_last_imported(self):
-        return self.last_imported
+    def get_updated(self):
+        return self.updated
     
     def to_json(self):
         profile_dict = {
             "name": self.name,
-            "last_imported": self.last_imported
+            "updated": self.updated
         }
         return profile_dict

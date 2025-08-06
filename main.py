@@ -17,7 +17,7 @@ with open("profile_list.json", "r") as current_json_file:
         if (os.path.getsize("profile_list.json") != 0):  
             current_json = json.load(current_json_file)
             for profile in current_json:
-                profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
+                profile_list.append(Profile.Profile(profile["name"], profile["updated"]))
 
 while True:
     now = datetime.now()
@@ -38,10 +38,10 @@ while True:
             print("Is not appending again and again!\n")
             #Append each profile in the response_json file to the list
             for profile in response_json:
-                profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
+                profile_list.append(Profile.Profile(profile["name"], profile["updated"]))
         
         for profile in response_json:
-            extracted_profile_list.append(Profile.Profile(profile["name"], profile["last_imported"]))
+            extracted_profile_list.append(Profile.Profile(profile["name"], profile["updated"]))
 
         #Upon change in the favorite list
         if len(profile_list) < len(extracted_profile_list):
@@ -66,13 +66,13 @@ while True:
         for i in range(len(profile_list)):
             for j in range(len(extracted_profile_list)):
                 if profile_list[i].get_name() == extracted_profile_list[j].get_name():
-                    if (profile_list[i].get_last_imported() != extracted_profile_list[j].get_last_imported()):
+                    if (profile_list[i].get_updated() != extracted_profile_list[j].get_updated()):
                         #Send email
                         name = extracted_profile_list[j].get_name()
                         send_message.send_message(name)
                         
                         #Set new date imported
-                        profile_list[i].set_last_imported(extracted_profile_list[j].get_last_imported())
+                        profile_list[i].set_updated(extracted_profile_list[j].get_updated())
 
         #send_message.send_message("AWS")
 
@@ -87,3 +87,6 @@ while True:
 
     #Suspend activity for X seconds
     time.sleep(seconds_to_sleep)
+    
+#Terminal Command
+#curl -X "GET" \ "https://kemono.cr/api/v1/account/favorites?type=artist" \ -H "accept: application/json" \ -H "Cookie: session=eyJfcGVybWFuZW50Ijp0cnVlLCJhY2NvdW50X2lkIjoxNjUxNTI4fQ.aIWIKg.yWF4o8P_ZpfXzi6QbZTM9NIdLTk"
